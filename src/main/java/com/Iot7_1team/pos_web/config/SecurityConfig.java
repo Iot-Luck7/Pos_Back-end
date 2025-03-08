@@ -23,6 +23,7 @@ public class SecurityConfig {
                 .cors(withDefaults()) // CORS 활성화
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/pos/**").permitAll() // POS API 인증 비활성화
+                        .requestMatchers("/api/menu/**").permitAll()
                         .anyRequest().authenticated() // 나머지 요청은 인증 필요
                 )
                 .httpBasic(withDefaults()); // HTTP Basic 인증 사용
@@ -42,4 +43,5 @@ public class SecurityConfig {
         source.registerCorsConfiguration("/**", configuration);
         return source;
     }
+
 }

@@ -9,22 +9,27 @@ import java.util.List;
 
 @Getter @Setter
 @Entity
-@Table(name = "Business")
+@Table(name = "BUSINESS_USER")  // DB 테이블명과 일치하도록 수정
+@SequenceGenerator(
+        name = "business_seq_generator",
+        sequenceName = "SEQ_BUSINESS_ID",  // DB 시퀀스명과 맞춤
+        allocationSize = 1
+)
 public class Business {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "business_id")
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "business_seq_generator")
+    @Column(name = "BUSINESS_ID")
     private Long businessId;
 
-    @Column(name = "business_type", nullable = false)
+    @Column(name = "BUSINESS_TYPE", nullable = false)
     private String businessType;
 
-    @Column(name = "business_name", nullable = false)
+    @Column(name = "BUSINESS_NAME", nullable = false, unique = true)
     private String businessName;
 
-    @Column(name = "spon", nullable = false)
-    private String spon;
+    @Column(name = "SPONSORSHIP_YN", nullable = false, length = 1, columnDefinition = "CHAR(1)")
+    private String sponsorshipYn = "N"; // 기본값 'N' 설정
 
     @OneToMany(mappedBy = "business", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Pos> posList = new ArrayList<>();
