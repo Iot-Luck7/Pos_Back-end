@@ -9,10 +9,10 @@ import java.util.List;
 
 @Getter @Setter
 @Entity
-@Table(name = "BUSINESS_USER")  // DB 테이블명과 일치하도록 수정
+@Table(name = "BUSINESS_USER")
 @SequenceGenerator(
         name = "business_seq_generator",
-        sequenceName = "SEQ_BUSINESS_ID",  // DB 시퀀스명과 맞춤
+        sequenceName = "SEQ_BUSINESS_ID",
         allocationSize = 1
 )
 public class Business {
