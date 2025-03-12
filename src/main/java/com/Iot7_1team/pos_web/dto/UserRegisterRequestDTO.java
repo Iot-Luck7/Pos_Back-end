@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class RegisterRequest {
-    private BusinessDto business;
-    private PosDto pos;
+public class UserRegisterRequestDTO {
+    private BusinessUserDTO business;
+    private PosDTO pos;
 }

@@ -5,9 +5,10 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class PosDto {
-    private String posLoginId;
-    private String posPassword;
+public class PosDTO {
+    private String location;
     private Double latitude;
     private Double longitude;
+    private String posLoginId;
+    private String posPassword;
 }

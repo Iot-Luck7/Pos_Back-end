@@ -5,9 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class BusinessDto {
+public class BusinessUserDTO {
     private String businessType;
     private String businessName;
     private String sponsorshipYn;
 }
-
