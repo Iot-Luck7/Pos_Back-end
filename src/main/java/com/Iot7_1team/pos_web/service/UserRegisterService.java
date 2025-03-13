@@ -8,6 +8,8 @@ import com.Iot7_1team.pos_web.repository.PosRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Service
 public class UserRegisterService {
 
@@ -31,18 +33,29 @@ public class UserRegisterService {
         }
 
         // 2️⃣ BUSINESS_TYPE이 '본점'이면 BUSINESS_NAME 중복 검사
-        if ("본점".equals(businessType) && businessUserRepository.findByBusinessTypeAndBusinessName("본점", businessName).isPresent()) {
-            throw new IllegalArgumentException("본점은 같은 BUSINESS_NAME을 가질 수 없습니다.");
+        if ("본점".equals(businessType)) {
+            List<BusinessUser> existingBusinesses = businessUserRepository.findByBusinessTypeAndBusinessName("본점", businessName);
+            if (!existingBusinesses.isEmpty()) {
+                throw new IllegalArgumentException("본점은 같은 BUSINESS_NAME을 가질 수 없습니다.");
+            }
         }
 
-        // 3️⃣ BUSINESS_USER 저장
+        // 3️⃣ BUSINESS_TYPE이 '개인'이면 기존 '본점'의 BUSINESS_NAME 중복 검사
+        if ("개인".equals(businessType)) {
+            List<BusinessUser> existingMainBusinesses = businessUserRepository.findByBusinessTypeAndBusinessName("본점", businessName);
+            if (!existingMainBusinesses.isEmpty()) {
+                throw new IllegalArgumentException("개인은 기존 본점의 BUSINESS_NAME과 중복될 수 없습니다.");
+            }
+        }
+
+        // 4️⃣ BUSINESS_USER 저장
         BusinessUser businessUser = new BusinessUser();
         businessUser.setBusinessType(businessType);
         businessUser.setBusinessName(businessName);
         businessUser.setSponsorshipYn(requestDTO.getBusiness().getSponsorshipYn());
         BusinessUser savedBusinessUser = businessUserRepository.save(businessUser);
 
-        // 4️⃣ POS 저장
+        // 5️⃣ POS 저장
         Pos pos = new Pos();
         pos.setBusinessUser(savedBusinessUser);
         pos.setLocation(requestDTO.getPos().getLocation());
