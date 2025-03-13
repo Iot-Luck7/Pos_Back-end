@@ -1,7 +1,5 @@
 package com.Iot7_1team.pos_web.service;
 
-import com.Iot7_1team.pos_web.dto.BusinessUserDTO;
-import com.Iot7_1team.pos_web.dto.PosDTO;
 import com.Iot7_1team.pos_web.dto.UserRegisterRequestDTO;
 import com.Iot7_1team.pos_web.model.BusinessUser;
 import com.Iot7_1team.pos_web.model.Pos;
@@ -23,30 +21,35 @@ public class UserRegisterService {
 
     @Transactional
     public void registerUser(UserRegisterRequestDTO requestDTO) {
-        PosDTO posDTO = requestDTO.getPos();
+        String businessType = requestDTO.getBusiness().getBusinessType();
+        String businessName = requestDTO.getBusiness().getBusinessName();
+        String posLoginId = requestDTO.getPos().getPosLoginId();
 
-        // 1. 이메일(로그인 ID) 중복 체크
-        if (posRepository.findByPosLoginId(posDTO.getPosLoginId()).isPresent()) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        // 1️⃣ POS_LOGIN_ID 중복 검사
+        if (posRepository.findByPosLoginId(posLoginId).isPresent()) {
+            throw new IllegalArgumentException("이미 사용 중인 POS 로그인 ID입니다.");
         }
 
-        // 2. BUSINESS_USER DTO → Entity 변환 후 저장
-        BusinessUserDTO businessDTO = requestDTO.getBusiness();
-        BusinessUser businessUser = new BusinessUser();
-        businessUser.setBusinessType(businessDTO.getBusinessType());
-        businessUser.setBusinessName(businessDTO.getBusinessName());
-        businessUser.setSponsorshipYn(businessDTO.getSponsorshipYn());
+        // 2️⃣ BUSINESS_TYPE이 '본점'이면 BUSINESS_NAME 중복 검사
+        if ("본점".equals(businessType) && businessUserRepository.findByBusinessTypeAndBusinessName("본점", businessName).isPresent()) {
+            throw new IllegalArgumentException("본점은 같은 BUSINESS_NAME을 가질 수 없습니다.");
+        }
 
+        // 3️⃣ BUSINESS_USER 저장
+        BusinessUser businessUser = new BusinessUser();
+        businessUser.setBusinessType(businessType);
+        businessUser.setBusinessName(businessName);
+        businessUser.setSponsorshipYn(requestDTO.getBusiness().getSponsorshipYn());
         BusinessUser savedBusinessUser = businessUserRepository.save(businessUser);
 
-        // 3. POS DTO → Entity 변환 후 저장
+        // 4️⃣ POS 저장
         Pos pos = new Pos();
         pos.setBusinessUser(savedBusinessUser);
-        pos.setLocation(posDTO.getLocation());
-        pos.setLatitude(posDTO.getLatitude());
-        pos.setLongitude(posDTO.getLongitude());
-        pos.setPosLoginId(posDTO.getPosLoginId());
-        pos.setPosPassword(posDTO.getPosPassword());
+        pos.setLocation(requestDTO.getPos().getLocation());
+        pos.setLatitude(requestDTO.getPos().getLatitude());
+        pos.setLongitude(requestDTO.getPos().getLongitude());
+        pos.setPosLoginId(requestDTO.getPos().getPosLoginId());
+        pos.setPosPassword(requestDTO.getPos().getPosPassword());
 
         posRepository.save(pos);
     }
