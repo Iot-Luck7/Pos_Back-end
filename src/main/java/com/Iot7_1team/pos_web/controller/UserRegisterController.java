@@ -21,6 +21,8 @@ public class UserRegisterController {
         try {
             userRegisterService.registerUser(requestDTO);
             return ResponseEntity.ok("유저 등록 성공!");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage()); // 중복 이메일 예외 처리
         } catch (Exception e) {
             return ResponseEntity.badRequest().body("유저 등록 실패: " + e.getMessage());
         }

@@ -23,7 +23,14 @@ public class UserRegisterService {
 
     @Transactional
     public void registerUser(UserRegisterRequestDTO requestDTO) {
-        // 1. BUSINESS_USER DTO → Entity 변환 후 저장
+        PosDTO posDTO = requestDTO.getPos();
+
+        // 1. 이메일(로그인 ID) 중복 체크
+        if (posRepository.findByPosLoginId(posDTO.getPosLoginId()).isPresent()) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
+
+        // 2. BUSINESS_USER DTO → Entity 변환 후 저장
         BusinessUserDTO businessDTO = requestDTO.getBusiness();
         BusinessUser businessUser = new BusinessUser();
         businessUser.setBusinessType(businessDTO.getBusinessType());
@@ -32,8 +39,7 @@ public class UserRegisterService {
 
         BusinessUser savedBusinessUser = businessUserRepository.save(businessUser);
 
-        // 2. POS DTO → Entity 변환 후 저장
-        PosDTO posDTO = requestDTO.getPos();
+        // 3. POS DTO → Entity 변환 후 저장
         Pos pos = new Pos();
         pos.setBusinessUser(savedBusinessUser);
         pos.setLocation(posDTO.getLocation());
