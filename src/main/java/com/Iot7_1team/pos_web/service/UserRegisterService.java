@@ -5,8 +5,10 @@ import com.Iot7_1team.pos_web.model.BusinessUser;
 import com.Iot7_1team.pos_web.model.Pos;
 import com.Iot7_1team.pos_web.repository.BusinessUserRepository;
 import com.Iot7_1team.pos_web.repository.PosRepository;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 
 import java.util.List;
 
@@ -15,10 +17,12 @@ public class UserRegisterService {
 
     private final BusinessUserRepository businessUserRepository;
     private final PosRepository posRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserRegisterService(BusinessUserRepository businessUserRepository, PosRepository posRepository) {
+    public UserRegisterService(BusinessUserRepository businessUserRepository, PosRepository posRepository, PasswordEncoder passwordEncoder) {
         this.businessUserRepository = businessUserRepository;
         this.posRepository = posRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     @Transactional
@@ -31,6 +35,8 @@ public class UserRegisterService {
         if (posRepository.findByPosLoginId(posLoginId).isPresent()) {
             throw new IllegalArgumentException("이미 사용 중인 POS 로그인 ID입니다.");
         }
+
+        String encodedPassword = passwordEncoder.encode(requestDTO.getPos().getPosPassword());
 
         // 2️⃣ BUSINESS_TYPE이 '본점'이면 BUSINESS_NAME 중복 검사
         if ("본점".equals(businessType)) {
@@ -62,7 +68,7 @@ public class UserRegisterService {
         pos.setLatitude(requestDTO.getPos().getLatitude());
         pos.setLongitude(requestDTO.getPos().getLongitude());
         pos.setPosLoginId(requestDTO.getPos().getPosLoginId());
-        pos.setPosPassword(requestDTO.getPos().getPosPassword());
+        pos.setPosPassword(encodedPassword);
 
         posRepository.save(pos);
     }
