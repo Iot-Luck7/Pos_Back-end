@@ -18,7 +18,7 @@ public class Pos {
 
     @ManyToOne
     @JoinColumn(name = "BUSINESS_ID", nullable = false)
-    private BusinessUser businessUser;
+    private BusinessUser businessUser; // ✅ BusinessUser 엔티티와 연관 관계
 
     @Column(name = "LOCATION")
     private String location;
@@ -34,4 +34,9 @@ public class Pos {
 
     @Column(name = "POS_PASSWORD", nullable = false)
     private String posPassword;
+
+    // ✅ businessId Getter 추가
+    public Long getBusinessId() {
+        return businessUser != null ? businessUser.getBusinessId() : null;
+    }
 }

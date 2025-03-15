@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface BusinessUserRepository extends JpaRepository<BusinessUser, Long> {
@@ -19,5 +20,7 @@ public interface BusinessUserRepository extends JpaRepository<BusinessUser, Long
      * @return 동일한 BUSINESS_TYPE과 BUSINESS_NAME을 가진 BusinessUser 리스트 반환
      */
     List<BusinessUser> findByBusinessTypeAndBusinessName(String businessType, String businessName);
+    Optional<BusinessUser> findByBusinessId(Long businessId);
 
+    List<BusinessUser> findByBusinessType(String businessType);
 }
