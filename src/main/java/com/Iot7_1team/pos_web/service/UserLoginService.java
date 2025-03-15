@@ -18,7 +18,7 @@ public class UserLoginService {
         this.passwordEncoder = passwordEncoder;
     }
 
-    public boolean authenticate(String loginId, String rawPassword) {
+    public Optional<Long> authenticate(String loginId, String rawPassword) {
         Optional<Pos> posOptional = posRepository.findByPosLoginId(loginId);
 
         if (posOptional.isPresent()) {
@@ -27,9 +27,12 @@ public class UserLoginService {
             System.out.println("📌 입력된 비밀번호: " + rawPassword); // ✅ 로그 추가
             boolean matches = passwordEncoder.matches(rawPassword, pos.getPosPassword());
             System.out.println("✅ 비밀번호 일치 여부: " + matches);
-            return matches;
-        }
-        return false;
-    }
 
+            if (matches) {
+                System.out.println("✅ 로그인 성공! BUSINESS_ID: " + pos.getBusinessId()); // ✅ businessId 로그 추가
+                return Optional.of(pos.getBusinessId()); // ✅ businessId 반환
+            }
+        }
+        return Optional.empty();
+    }
 }
