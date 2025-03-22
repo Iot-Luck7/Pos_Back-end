@@ -9,8 +9,8 @@ public class MenuRegisterRequestDTO {
     private String posLoginId;
     private String menuName;
     private String category;
-    private int price;
-    private int calorie;
+    private Double price;
+    private Double calorie;
     private String ingredients;
     private boolean dietYn;
 }

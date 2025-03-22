@@ -1,9 +1,11 @@
 package com.Iot7_1team.pos_web.repository;
 
+import com.Iot7_1team.pos_web.model.BusinessUser;
 import com.Iot7_1team.pos_web.model.Pos;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 /**
@@ -23,4 +25,5 @@ public interface PosRepository extends JpaRepository<Pos, Long> {
      * @return 동일한 POS_LOGIN_ID를 가진 Pos 객체를 Optional로 반환
      */
     Optional<Pos> findByPosLoginId(String posLoginId);
+    List<Pos> findByBusinessUser(BusinessUser businessUser); // ✅ 특정 사업자의 POS 찾기
 }
