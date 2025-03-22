@@ -23,4 +23,5 @@ public interface BusinessUserRepository extends JpaRepository<BusinessUser, Long
     Optional<BusinessUser> findByBusinessId(Long businessId);
 
     List<BusinessUser> findByBusinessType(String businessType);
+
 }

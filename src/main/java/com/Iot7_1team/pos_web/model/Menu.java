@@ -8,29 +8,28 @@ import java.time.LocalDateTime;
 @Entity
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 @Table(name = "MENU")
+@SequenceGenerator(name = "menu_seq_gen", sequenceName = "IOT7.SEQ_MENU_ID", allocationSize = 1)
 public class Menu {
-
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "menu_seq")
-    @SequenceGenerator(name = "menu_seq", sequenceName = "SEQ_MENU_ID", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "menu_seq_gen")
     @Column(name = "MENU_ID")
     private Long menuId;
+
+    @Column(name = "BUSINESS_ID", nullable = false)
+    private Long businessId;
 
     @Column(name = "MENU_NAME", nullable = false)
     private String menuName;
 
-    @Column(name = "CATEGORY", nullable = false)
+    @Column(name = "CATEGORY")
     private String category;
 
-    @Column(name = "PRICE", nullable = false)
-    private Double price; // 🔹 Integer → Double로 수정
-
-    @Column(name = "CLICK_COUNT")
-    private Integer clickCount = 0;
+    @Column(name = "PRICE")
+    private Double price;
 
     @Column(name = "CALORIE")
     private Double calorie;
@@ -38,25 +37,9 @@ public class Menu {
     @Column(name = "INGREDIENTS")
     private String ingredients;
 
-    @Column(name = "DIET_YN", nullable = false)
-    private String dietYn = "N";
+    @Column(name = "DIET_YN")
+    private String dietYn;
 
-    @Column(name = "REG_DATE", nullable = false)
-    private LocalDateTime regDate = LocalDateTime.now();
-
-    @Column(name = "BUSINESS_ID", nullable = false)
-    private Long businessId;
-
-    // 🔹 복사 생성자 추가
-    public Menu(Menu menu, Long businessId) {
-        this.menuName = menu.getMenuName();
-        this.category = menu.getCategory();
-        this.price = menu.getPrice();
-        this.clickCount = 0; // 신규 메뉴이므로 초기화
-        this.calorie = menu.getCalorie();
-        this.ingredients = menu.getIngredients();
-        this.dietYn = menu.getDietYn();
-        this.regDate = LocalDateTime.now();
-        this.businessId = businessId;
-    }
+    @Column(name = "REG_DATE")
+    private LocalDateTime regDate;
 }

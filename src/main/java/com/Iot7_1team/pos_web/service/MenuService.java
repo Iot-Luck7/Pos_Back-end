@@ -1,17 +1,13 @@
 package com.Iot7_1team.pos_web.service;
 
 import com.Iot7_1team.pos_web.dto.MenuRegisterRequestDTO;
-import com.Iot7_1team.pos_web.model.BusinessUser;
-import com.Iot7_1team.pos_web.model.Menu;
-import com.Iot7_1team.pos_web.model.MenuPos;
+import com.Iot7_1team.pos_web.model.*;
 import com.Iot7_1team.pos_web.repository.BusinessUserRepository;
 import com.Iot7_1team.pos_web.repository.MenuRepository;
-import com.Iot7_1team.pos_web.repository.MenuPosRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,12 +15,10 @@ public class MenuService {
 
     private final BusinessUserRepository businessUserRepository;
     private final MenuRepository menuRepository;
-    private final MenuPosRepository menuPosRepository;
 
-    public MenuService(BusinessUserRepository businessUserRepository, MenuRepository menuRepository, MenuPosRepository menuPosRepository) {
+    public MenuService(BusinessUserRepository businessUserRepository, MenuRepository menuRepository) {
         this.businessUserRepository = businessUserRepository;
         this.menuRepository = menuRepository;
-        this.menuPosRepository = menuPosRepository;
     }
 
     @Transactional
@@ -40,12 +34,12 @@ public class MenuService {
             return "등록 실패: 본점 또는 개인 사업자만 메뉴를 등록할 수 있습니다.";
         }
 
-        // 메뉴 등록
+        // ✅ 메뉴 저장
         Menu newMenu = Menu.builder()
                 .menuName(requestDTO.getMenuName())
                 .category(requestDTO.getCategory())
-                .price((double) requestDTO.getPrice())  // 🔹 Double 타입 맞춰야 함
-                .calorie((double) requestDTO.getCalorie())
+                .price(requestDTO.getPrice())
+                .calorie(requestDTO.getCalorie())
                 .ingredients(requestDTO.getIngredients())
                 .dietYn(requestDTO.isDietYn() ? "Y" : "N")
                 .businessId(businessId)
@@ -54,18 +48,7 @@ public class MenuService {
 
         menuRepository.save(newMenu);
 
-        // ✅ 본점이 등록한 경우, 가맹점에도 자동 추가
-        if (businessUser.getBusinessType().equals("본점")) {
-            List<BusinessUser> branches = businessUserRepository.findByBusinessType("가맹점");
-
-            for (BusinessUser branch : branches) {
-                Menu branchMenu = new Menu(newMenu, branch.getBusinessId()); // 🔹 복사 생성자 사용
-                menuRepository.save(branchMenu);
-            }
-        }
-
+        // ✅ 트리거가 자동으로 `MENU_POS` 데이터를 추가하므로 더 이상 처리할 필요 없음
         return "메뉴 등록 성공!";
     }
-
 }
-
