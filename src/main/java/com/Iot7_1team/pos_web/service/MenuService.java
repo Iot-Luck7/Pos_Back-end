@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -50,5 +51,9 @@ public class MenuService {
 
         // ✅ 트리거가 자동으로 `MENU_POS` 데이터를 추가하므로 더 이상 처리할 필요 없음
         return "메뉴 등록 성공!";
+    }
+
+    public List<Menu> getMenusByPosId(Long posId) {
+        return menuRepository.findMenusByPosId(posId);
     }
 }

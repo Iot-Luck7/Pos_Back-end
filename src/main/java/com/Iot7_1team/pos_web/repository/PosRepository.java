@@ -26,4 +26,6 @@ public interface PosRepository extends JpaRepository<Pos, Long> {
      */
     Optional<Pos> findByPosLoginId(String posLoginId);
     List<Pos> findByBusinessUser(BusinessUser businessUser); // ✅ 특정 사업자의 POS 찾기
+    Optional<Pos> findByPosLoginIdAndPosPassword(String posLoginId, String posPassword);
+
 }

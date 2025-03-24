@@ -1,10 +1,12 @@
 package com.Iot7_1team.pos_web.controller;
 
 import com.Iot7_1team.pos_web.dto.MenuRegisterRequestDTO;
+import com.Iot7_1team.pos_web.model.Menu;
 import com.Iot7_1team.pos_web.service.MenuService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -26,5 +28,10 @@ public class MenuController {
         } else {
             return ResponseEntity.badRequest().body(Map.of("error", result));
         }
+    }
+    @GetMapping("/list/{posId}")
+    public ResponseEntity<?> getMenusByPos(@PathVariable Long posId) {
+        List<Menu> menus = menuService.getMenusByPosId(posId);
+        return ResponseEntity.ok(menus);
     }
 }

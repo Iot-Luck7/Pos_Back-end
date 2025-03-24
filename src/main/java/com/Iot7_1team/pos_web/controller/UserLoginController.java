@@ -1,9 +1,14 @@
 package com.Iot7_1team.pos_web.controller;
 
-import com.Iot7_1team.pos_web.dto.UserLoginRequestDTO;
+import com.Iot7_1team.pos_web.dto.PosLoginRequest;
+import com.Iot7_1team.pos_web.model.BusinessUser;
+import com.Iot7_1team.pos_web.model.Pos;
+import com.Iot7_1team.pos_web.repository.PosRepository;
 import com.Iot7_1team.pos_web.service.UserLoginService;
 import com.Iot7_1team.pos_web.util.JwtUtil;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -14,28 +19,35 @@ import java.util.Optional;
 @CrossOrigin(origins = "http://localhost:3000")
 public class UserLoginController {
 
-    private final UserLoginService userLoginService;
-    private final JwtUtil jwtUtil;
+    private final PosRepository posRepository; // ✅ 추가
 
-    public UserLoginController(UserLoginService userLoginService, JwtUtil jwtUtil) {
-        this.userLoginService = userLoginService;
-        this.jwtUtil = jwtUtil;
+    public UserLoginController(UserLoginService userLoginService, JwtUtil jwtUtil, PosRepository posRepository) {
+        this.posRepository = posRepository; // ✅ 주입
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody UserLoginRequestDTO requestDTO) {
-        if (requestDTO.getPosLoginId() == null || requestDTO.getPosPassword() == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "로그인 ID와 비밀번호를 입력하세요."));
+    public ResponseEntity<?> login(@RequestBody PosLoginRequest request) {
+        Optional<Pos> posOptional = posRepository.findByPosLoginId(request.getPosLoginId());
+
+        if (posOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "로그인 실패"));
         }
 
-        Optional<Long> businessIdOpt = userLoginService.authenticate(requestDTO.getPosLoginId(), requestDTO.getPosPassword());
+        Pos pos = posOptional.get();
+        BusinessUser businessUser = pos.getBusinessUser();
 
-        if (businessIdOpt.isPresent()) {
-            Long businessId = businessIdOpt.get();
-            String token = jwtUtil.generateToken(requestDTO.getPosLoginId(), businessId); // ✅ businessId 포함
-            return ResponseEntity.ok(Map.of("message", "로그인 성공!", "token", token));
-        } else {
-            return ResponseEntity.status(401).body(Map.of("error", "로그인 실패: 아이디 또는 비밀번호가 일치하지 않습니다."));
+        // ✅ 비밀번호 암호화된 것과 비교
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        if (!passwordEncoder.matches(request.getPosPassword(), pos.getPosPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "비밀번호가 일치하지 않습니다."));
         }
+
+        return ResponseEntity.ok(Map.of(
+                "message", "로그인 성공",
+                "posId", pos.getPosId(),
+                "businessId", businessUser.getBusinessId(),
+                "businessType", businessUser.getBusinessType()
+        ));
     }
+
 }
