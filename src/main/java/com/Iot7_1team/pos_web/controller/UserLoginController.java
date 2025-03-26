@@ -1,60 +1,30 @@
 package com.Iot7_1team.pos_web.controller;
 
 import com.Iot7_1team.pos_web.dto.PosLoginRequest;
-import com.Iot7_1team.pos_web.model.BusinessUser;
-import com.Iot7_1team.pos_web.model.Pos;
-import com.Iot7_1team.pos_web.repository.PosRepository;
-import org.springframework.http.HttpStatus;
+import com.Iot7_1team.pos_web.service.UserLoginService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
-import java.util.Optional;
-
-@RestController // 이 클래스가 REST API 컨트롤러임을 나타냄
-@RequestMapping("/api/pos") // "/api/pos" 경로로 들어오는 요청 처리
-@CrossOrigin(origins = "http://localhost:3000") // React 앱과 연동을 위한 CORS 허용 설정
+@RestController // 이 클래스가 REST API 컨트롤러임을 나타냄 (JSON 기반 응답 처리)
+@RequestMapping("/api/pos") // "/api/pos" 경로로 들어오는 요청을 이 컨트롤러에서 처리
+@CrossOrigin(origins = "http://localhost:3000") // CORS 설정 - React 앱(포트 3000)에서 요청 허용
 public class UserLoginController {
 
-    private final PosRepository posRepository; // POS 정보를 DB에서 조회하기 위한 리포지토리
+    private final UserLoginService userLoginService; // 로그인 비즈니스 로직을 처리할 서비스
 
     // 생성자를 통한 의존성 주입
-    public UserLoginController(PosRepository posRepository) {
-        this.posRepository = posRepository;
+    public UserLoginController(UserLoginService userLoginService) {
+        this.userLoginService = userLoginService;
     }
 
     /**
-     * POS 로그인 처리 API
+     * POS 로그인 요청 처리
      *
-     * @param request 로그인 요청 정보 (POS 로그인 ID, 비밀번호)
-     * @return 로그인 성공 시 POS ID, 사업자 ID, 사업자 타입 반환 / 실패 시 에러 메시지
+     * @param request 로그인 요청 데이터 (ID, 비밀번호 포함)
+     * @return 로그인 성공 시 POS ID, 사업자 ID, 사업자 타입 등의 정보를 반환
      */
-    @PostMapping("/login")
+    @PostMapping("/login") // POST 요청 "/api/pos/login" 처리
     public ResponseEntity<?> login(@RequestBody PosLoginRequest request) {
-        // 로그인 ID로 POS 정보 조회
-        Optional<Pos> posOptional = posRepository.findByPosLoginId(request.getPosLoginId());
-
-        // 해당 ID의 POS가 존재하지 않으면 로그인 실패
-        if (posOptional.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "로그인 실패"));
-        }
-
-        Pos pos = posOptional.get(); // POS 정보 꺼내기
-        BusinessUser businessUser = pos.getBusinessUser(); // 해당 POS에 연결된 사업자 정보도 함께 가져오기
-
-        // 입력한 비밀번호와 암호화된 비밀번호 비교
-        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        if (!passwordEncoder.matches(request.getPosPassword(), pos.getPosPassword())) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "비밀번호가 일치하지 않습니다."));
-        }
-
-        // 로그인 성공 시 필요한 정보 반환
-        return ResponseEntity.ok(Map.of(
-                "message", "로그인 성공",
-                "posId", pos.getPosId(), // POS ID
-                "businessId", businessUser.getBusinessId(), // 사업자 ID
-                "businessType", businessUser.getBusinessType() // 사업자 유형 (ex. 본점, 개인 등)
-        ));
+        return userLoginService.login(request); // 로그인 로직은 서비스에서 처리
     }
 }
