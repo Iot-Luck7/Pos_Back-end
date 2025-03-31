@@ -35,8 +35,4 @@ public class Pos {
     @Column(name = "POS_PASSWORD", nullable = false)
     private String posPassword;
 
-    // ✅ businessId Getter 추가
-    public Long getBusinessId() {
-        return businessUser != null ? businessUser.getBusinessId() : null;
-    }
 }
