@@ -50,4 +50,26 @@ public class MenuController {
         List<Menu> menus = menuService.getMenusByPosId(posId);
         return ResponseEntity.ok(menus); // 메뉴 리스트를 JSON으로 반환
     }
+
+    @DeleteMapping("/delete/{menuId}")
+    public ResponseEntity<?> deleteMenu(@PathVariable Long menuId) {
+        String result = menuService.deleteMenu(menuId);
+        if (result.equals("삭제 성공")) {
+            return ResponseEntity.ok(Map.of("message", result));
+        } else {
+            return ResponseEntity.badRequest().body(Map.of("error", result));
+        }
+    }
+    @PutMapping("/update/{menuId}")
+    public ResponseEntity<?> updateMenu(
+            @PathVariable Long menuId,
+            @RequestBody MenuRegisterRequestDTO requestDTO) {
+        try {
+            String result = menuService.updateMenu(menuId, requestDTO);
+            return ResponseEntity.ok(Map.of("message", result));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
 }

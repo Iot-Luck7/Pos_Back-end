@@ -3,6 +3,7 @@ package com.Iot7_1team.pos_web.service;
 import com.Iot7_1team.pos_web.dto.MenuRegisterRequestDTO;
 import com.Iot7_1team.pos_web.model.*;
 import com.Iot7_1team.pos_web.repository.BusinessUserRepository;
+import com.Iot7_1team.pos_web.repository.MenuPosRepository;
 import com.Iot7_1team.pos_web.repository.MenuRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,11 +17,14 @@ public class MenuService {
 
     private final BusinessUserRepository businessUserRepository; // 사업자 정보 조회용 리포지토리
     private final MenuRepository menuRepository; // 메뉴 저장 및 조회용 리포지토리
-
+    private final MenuPosRepository menuPosRepository;
     // 생성자 주입
-    public MenuService(BusinessUserRepository businessUserRepository, MenuRepository menuRepository) {
+    public MenuService(BusinessUserRepository businessUserRepository,
+                       MenuRepository menuRepository,
+                       MenuPosRepository menuPosRepository) {
         this.businessUserRepository = businessUserRepository;
         this.menuRepository = menuRepository;
+        this.menuPosRepository = menuPosRepository;
     }
 
     /**
@@ -73,5 +77,45 @@ public class MenuService {
      */
     public List<Menu> getMenusByPosId(Long posId) {
         return menuRepository.findMenusByPosId(posId);
+    }
+
+    @Transactional
+    public String deleteMenu(Long menuId) {
+        Optional<Menu> menuOptional = menuRepository.findById(menuId);
+
+        if (menuOptional.isEmpty()) {
+            return "삭제 실패: 해당 메뉴가 존재하지 않습니다.";
+        }
+
+        // ✅ 메뉴-포스 연결 테이블 먼저 삭제
+        menuPosRepository.deleteByMenuId(menuId);
+
+        // ✅ 그 후 메뉴 삭제
+        menuRepository.deleteById(menuId);
+
+        return "삭제 성공";
+    }
+
+    @Transactional
+    public String updateMenu(Long menuId, MenuRegisterRequestDTO dto) {
+        Optional<Menu> optionalMenu = menuRepository.findById(menuId);
+        if (optionalMenu.isEmpty()) {
+            return "수정 실패: 메뉴가 존재하지 않습니다.";
+        }
+
+        Menu menu = optionalMenu.get();
+        menu.setMenuName(dto.getMenuName());
+        menu.setCategory(dto.getCategory());
+        menu.setPrice(dto.getPrice());
+        menu.setCalorie(dto.getCalorie());
+        menu.setIngredients(dto.getIngredients());
+        menu.setDietYn(dto.isDietYn() ? "Y" : "N");
+
+        if (dto.getImageUrl() != null && !dto.getImageUrl().isEmpty()) {
+            menu.setImageUrl(dto.getImageUrl());
+        }
+
+        menuRepository.save(menu); // 실제로는 생략해도 JPA가 자동 처리함
+        return "메뉴 수정 성공!";
     }
 }
