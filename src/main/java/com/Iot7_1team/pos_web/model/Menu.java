@@ -42,4 +42,8 @@ public class Menu {
 
     @Column(name = "REG_DATE")
     private LocalDateTime regDate;
+
+    @Column(name = "IMAGE_URL")
+    private String imageUrl;
+
 }

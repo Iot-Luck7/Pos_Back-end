@@ -13,5 +13,6 @@ public class MenuRegisterRequestDTO {
     private Double calorie;
     private String ingredients;
     private boolean dietYn;
+    private String imageUrl;
 }
 

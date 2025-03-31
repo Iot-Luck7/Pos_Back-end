@@ -55,7 +55,8 @@ public class MenuService {
                 .ingredients(requestDTO.getIngredients())     // 재료
                 .dietYn(requestDTO.isDietYn() ? "Y" : "N")    // 다이어트 여부 (Y/N)
                 .businessId(businessId)                       // 사업자 ID
-                .regDate(LocalDateTime.now())                 // 등록 일시
+                .regDate(LocalDateTime.now())
+                .imageUrl(requestDTO.getImageUrl())           // 등록 일시
                 .build();
 
         menuRepository.save(newMenu); // DB에 저장
