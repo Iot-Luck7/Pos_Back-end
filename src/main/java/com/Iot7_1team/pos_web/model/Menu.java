@@ -46,4 +46,6 @@ public class Menu {
     @Column(name = "IMAGE_URL")
     private String imageUrl;
 
+    @Column(name = "DESCRIPTION")
+    private String description;
 }

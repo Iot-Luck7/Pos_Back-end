@@ -52,15 +52,15 @@ public class MenuService {
 
         // ✅ 메뉴 정보 생성 및 저장
         Menu newMenu = Menu.builder()
-                .menuName(requestDTO.getMenuName())           // 메뉴 이름
-                .category(requestDTO.getCategory())           // 카테고리
-                .price(requestDTO.getPrice())                 // 가격
-                .calorie(requestDTO.getCalorie())             // 칼로리
-                .ingredients(requestDTO.getIngredients())     // 재료
-                .dietYn(requestDTO.isDietYn() ? "Y" : "N")    // 다이어트 여부 (Y/N)
-                .businessId(businessId)                       // 사업자 ID
+                .menuName(requestDTO.getMenuName())
+                .category(requestDTO.getCategory())
+                .price(requestDTO.getPrice())
+                .calorie(requestDTO.getCalorie())
+                .dietYn(requestDTO.isDietYn() ? "Y" : "N")
+                .businessId(businessId)
                 .regDate(LocalDateTime.now())
-                .imageUrl(requestDTO.getImageUrl())           // 등록 일시
+                .imageUrl(requestDTO.getImageUrl())
+                .description(requestDTO.getDescription())  // ✅ description 필드 제대로 연결
                 .build();
 
         menuRepository.save(newMenu); // DB에 저장
@@ -104,16 +104,19 @@ public class MenuService {
         }
 
         Menu menu = optionalMenu.get();
+        // Menu 수정 로직
         menu.setMenuName(dto.getMenuName());
         menu.setCategory(dto.getCategory());
         menu.setPrice(dto.getPrice());
         menu.setCalorie(dto.getCalorie());
-        menu.setIngredients(dto.getIngredients());
+// menu.setIngredients(dto.getIngredients());  // ❌ 제거
         menu.setDietYn(dto.isDietYn() ? "Y" : "N");
+        menu.setDescription(dto.getDescription());      // ✅ 추가
 
         if (dto.getImageUrl() != null && !dto.getImageUrl().isEmpty()) {
             menu.setImageUrl(dto.getImageUrl());
         }
+
 
         menuRepository.save(menu); // 실제로는 생략해도 JPA가 자동 처리함
         return "메뉴 수정 성공!";
